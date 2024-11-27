@@ -3,7 +3,7 @@ name: Ejecutar Script Python para MongoDB
 on:
   push:
     branches:
-      - task/PremiosAwardsDiegoBlanco 
+      - main 
 
 jobs:
   run-script:
