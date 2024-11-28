@@ -1,4 +1,4 @@
-name: Ejecutar Script Python para MongoDB
+name: Subir Premios Oscar a Mongo Atlas
 
 on:
   push:
