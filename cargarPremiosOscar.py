@@ -20,8 +20,8 @@ def cargarPremiosOscar():
 
     if response.status_code == 200:
         data = response.json()
-        db = client["PremiosPrizes"]
-        collection = db["OscarWinners"]
+        db = client["PremiosOscarDB"]
+        collection = db["Winners"]
 
         for item in data:
             if item.get('won') and item.get('movies'):
