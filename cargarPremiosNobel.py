@@ -10,8 +10,8 @@ uri = os.getenv("MONGO_URI")
 
 try:
     client = MongoClient(uri)
-    db = client["NobelPrizesDB"]
-    collection = db["Prizes"]
+    db = client["Winners"]
+    collection = db["PremioNobelDB"]
     print("Conexión exitosa a MongoDB.")
 except Exception as e:
     print(f"Error al conectarse a MongoDB: {e}")
