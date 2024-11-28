@@ -1,59 +1,68 @@
-import requests
-from bs4 import BeautifulSoup
-from pymongo import MongoClient
-from dotenv import load_dotenv
 import os
-import urllib3  
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import requests
+from pymongo import MongoClient
+from io import StringIO
+import csv
+from dotenv import load_dotenv
 
+# Cargar las variables de entorno
 load_dotenv()
 uri = os.getenv("MONGO_URI")
 
-# Configuración de MongoDB
+# Conexión a MongoDB Atlas
 try:
     client = MongoClient(uri)
-    db = client["PremioCervantesDB"]
-    collection = db["Winners"]
-    print("Conexión exitosa a MongoDB.")
+    print("Conexión exitosa a MongoDB Atlas.")
 except Exception as e:
-    print(f"Error al conectarse a MongoDB: {e}")
+    print("Error al conectarse a MongoDB Atlas:", e)
     exit()
 
-def cargar_premio_cervantes():
-    url = "https://www.cultura.gob.es/premiado/busquedaPremioParticularAction.do?action=busquedaInicial&params.id_tipo_premio=90&layout=premioMiguelCervantesLibro&cache=init&language=es"
-
-    response = requests.get(url, verify=False)
-
+def cargarPremiosNobel():
+    # URL de la API del Premio Nobel
+    url = "http://api.nobelprize.org/v1/prize.csv"
+    
+    # Realizar la solicitud GET
+    response = requests.get(url)
+    
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        lista_premiados = soup.find('div', class_='listaPremiados')
+        csv_data = StringIO(response.text)
+        reader = csv.DictReader(csv_data)
         
-        if lista_premiados:
-            premiados = lista_premiados.find_all('li')
+        # Conexión a la base de datos y colección
+        db = client["PremiosPrizes"]
+        collection = db["NobelWinners"]
 
-            for premiado in premiados:
-                year = premiado.text.split('-')[0].strip()
-                name_tag = premiado.find('a', class_='titulo')
-                
-                if name_tag:
-                    name = name_tag.text.strip()
-                    link = "https://www.cultura.gob.es" + name_tag['href']
-
-                    document = {
-                        "year": year,
-                        "name": name,
-                        "link": link
-                    }
-
-                    if not collection.find_one({"year": year, "name": name}):
-                        collection.insert_one(document)
-                    else:
-                        print(f"El documento para el año {year} y el premiado {name} ya existe.")
+        # Insertar datos en la colección
+        for row in reader:
+            # Obtener los datos relevantes del archivo CSV
+            year = row['year']
+            category = row['category']
+            nobel_id = row['id']
+            firstname = row.get('firstname', '').strip()
+            surname = row.get('surname', '').strip()
+            motivation = row.get('motivation', '').replace('"""', '').strip()
+            share = row['share']
             
-            print("Los datos del Premio Cervantes se han cargado a MongoDB.")
-        else:
-            print("No se encontró la lista de premiados.")
-    else:
-        print(f"Error al acceder a la página: {response.status_code}")
+            # Documento a insertar
+            document = {
+                "year": year,
+                "category": category,
+                "id": nobel_id,
+                "firstname": firstname,
+                "surname": surname,
+                "motivation": motivation,
+                "share": share
+            }
+            
+            # Insertar el documento si no existe
+            if not collection.find_one({"year": year, "category": category, "id": nobel_id}):
+                collection.insert_one(document)
+            else:
+                print(f"El documento ya existe: {document}")
 
-cargar_premio_cervantes()
+        print("Los datos de los Premios Nobel se han cargado en MongoDB Atlas.")
+    else:
+        print(f"Error al obtener los datos de la API: {response.status_code}")
+
+# Llamar a la función para cargar los Premios Nobel
+cargarPremiosNobel()
