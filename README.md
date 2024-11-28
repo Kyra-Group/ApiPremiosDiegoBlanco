@@ -23,6 +23,17 @@ Se ejecuta el script `cargarPremiosCervantes.py` para cargar los datos de los **
 - **MongoDB Atlas**: Necesitas una cuenta en MongoDB Atlas y configurar una URI de conexión en los secretos del repositorio bajo el nombre `MONGO_URI`.
 - **GitHub Actions**: Se utiliza para automatizar los flujos de trabajo.
 
+### Librerías necesarias
+
+En el archivo `requirements.txt` se encuentran las dependencias necesarias para que el proyecto funcione correctamente. Estas son:
+
+- **requests**: Esta librería es utilizada para hacer solicitudes HTTP. En este proyecto, se usa para interactuar con las APIs de los premios, obteniendo datos de ellos mediante peticiones web.
+- **pymongo**: Es el driver de Python para MongoDB, y se utiliza para conectar y trabajar con **MongoDB Atlas**. Esta librería permite insertar, actualizar y consultar los datos de los premios en la base de datos MongoDB.
+- **python-dotenv**: Esta librería se utiliza para cargar variables de entorno desde un archivo `.env`. En este proyecto, es útil para almacenar de manera segura información sensible como la URI de conexión de MongoDB Atlas.
+- **beautifulsoup4**: Esta librería facilita el parseo de contenido HTML y XML. En este caso, se usa para extraer datos de las páginas web de los premios, como los ganadores o las categorías.
+
+Estas dependencias son fundamentales para el correcto funcionamiento de la automatización de la carga de datos a **MongoDB Atlas** a través de **GitHub Actions**.
+
 ## Configuración de MongoDB Atlas
 
 1. **Crea una cuenta** en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) y configura una base de datos.
