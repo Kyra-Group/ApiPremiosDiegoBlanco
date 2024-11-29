@@ -1,4 +1,1 @@
-fastapi
-pymongo
-uvicorn
-python-dotenv
+
