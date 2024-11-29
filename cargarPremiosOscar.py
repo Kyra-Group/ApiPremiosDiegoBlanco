@@ -1,9 +1,9 @@
+import os
 import requests
+from pymongo import MongoClient
 
 def cargarPremiosOscar():
-    # Cambia esta URL después de desplegar la API en Render
-    api_url = "https://tu-api-en-render.com/winners"  
-
+    api_url = "http://localhost:8000/winners"  # API desplegada en el contenedor
     url = "https://raw.githubusercontent.com/delventhalz/json-nominations/main/oscar-nominations.json"
     response = requests.get(url)
 
@@ -39,4 +39,5 @@ def cargarPremiosOscar():
     else:
         print(f"Error al obtener los datos de la API original: {response.status_code}")
 
-cargarPremiosOscar()
+if __name__ == "__main__":
+    cargarPremiosOscar()
