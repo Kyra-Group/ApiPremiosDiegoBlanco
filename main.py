@@ -4,10 +4,8 @@ import requests
 
 app = FastAPI()
 
-# URL de la API original
 URL = "https://raw.githubusercontent.com/delventhalz/json-nominations/main/oscar-nominations.json"
 
-# Función para obtener los datos de la URL
 def fetch_data():
     response = requests.get(URL)
     if response.status_code == 200:
@@ -17,12 +15,10 @@ def fetch_data():
 
 @app.get("/")
 def redirect_to_winners():
-    """Redirigir automáticamente a la ruta /winners/."""
     return RedirectResponse(url="/winners/")
 
 @app.get("/winners/")
 def get_all_winners(limit: int = None):
-    """Obtener todos los ganadores, con opción de limitar los resultados."""
     data = fetch_data()
     winners = [item for item in data if item.get("won")]
     if not winners:
@@ -33,7 +29,6 @@ def get_all_winners(limit: int = None):
 
 @app.get("/winners/{year}")
 def get_winners_by_year(year: str):
-    """Obtener ganadores por año."""
     data = fetch_data()
     winners = [item for item in data if item.get("won") and item.get("year") == year]
     if not winners:
@@ -42,7 +37,6 @@ def get_winners_by_year(year: str):
 
 @app.get("/categories/{category}")
 def get_winners_by_category(category: str):
-    """Obtener ganadores por categoría."""
     data = fetch_data()
     winners = [item for item in data if item.get("won") and item.get("category").lower() == category.lower()]
     if not winners:
@@ -51,7 +45,6 @@ def get_winners_by_category(category: str):
 
 @app.get("/movie/{title}")
 def get_winner_by_movie(title: str):
-    """Obtener ganador por título de película."""
     data = fetch_data()
     for item in data:
         if item.get("won"):
@@ -60,4 +53,3 @@ def get_winner_by_movie(title: str):
                 if movie.get("title").lower() == title.lower():
                     return {"category": item["category"], "year": item["year"], "movie": movie, "won": item["won"]}
     raise HTTPException(status_code=404, detail=f"No se encontró información para la película '{title}'")
-
