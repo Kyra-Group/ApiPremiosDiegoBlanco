@@ -1,32 +1,48 @@
-name: Run Oscar Data Loader
+name: Deploy FastAPI and Load Oscar Winners to MongoDB
 
 on:
   push:
     branches:
-      - main 
+      - main
+  workflow_dispatch:
 
 jobs:
-  run:
-    runs-on: ubuntu-latest 
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      # Step 2: Set up Python environment
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt 
+      # Step 3: Install dependencies for FastAPI app and script
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run cargarPremiosOscar.py
-      run: |
-        python cargarPremiosOscar.py 
+      # Step 4: Run FastAPI app (this starts the API)
+      - name: Run FastAPI app
+        run: |
+          nohup uvicorn main:app --host 0.0.0.0 --port 8000 &
 
-    - name: Run main.py (si también lo necesitas)
-      run: |
-        python main.py 
+      # Step 5: Wait for FastAPI app to be ready
+      - name: Wait for FastAPI app to be ready
+        run: |
+          sleep 10  # Allow some time for the FastAPI app to start
+
+      # Step 6: Run the script to load Oscar data into MongoDB
+      - name: Run script to load Oscar data
+        run: |
+          python cargarPremiosOscar.py
+
+      # Step 7: Optionally, you can stop the FastAPI server after the script finishes
+      - name: Stop FastAPI server
+        run: |
+          kill $(lsof -t -i:8000)
