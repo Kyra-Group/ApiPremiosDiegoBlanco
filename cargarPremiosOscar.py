@@ -1,43 +1,55 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 import requests
-from pymongo import MongoClient
 
-api_url = "http://127.0.0.1:8000/winners/"
+app = FastAPI()
 
-mongo_uri = "mongodb+srv://dblanco:XPi8dTIHmjuk9bH9@cluster0.elpgy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+URL = "https://raw.githubusercontent.com/delventhalz/json-nominations/main/oscar-nominations.json"
 
-response = requests.get(api_url)
-data = response.json()["winners"]
+def fetch_data():
+    response = requests.get(URL)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise HTTPException(status_code=500, detail="Error al obtener los datos de la API original")
 
-client = MongoClient(mongo_uri)
-db = client["PremiosOscar"]
-collection = db["Ganadores"]
+@app.get("/")
+def redirect_to_winners():
+    return RedirectResponse(url="/winners/")
 
-for entry in data:
-    category = entry["category"]
-    year = entry["year"]
-    nominees = entry["nominees"]
-    movies = entry["movies"]
-    
-    for movie in movies:
-        title = movie["title"]
-        
-        if title in nominees:
-            nominee_str = title
-            document = {
-                "category": category,
-                "year": year,
-                "nominee": nominee_str,
-            }
-        else:
-            nominee_str = ", ".join(nominees)
-            document = {
-                "category": category,
-                "year": year,
-                "nominee": nominee_str,
-                "title": title,
-            }
+@app.get("/winners/")
+def get_all_winners(limit: int = None):
+    data = fetch_data()
+    winners = [item for item in data if item.get("won")]
+    if not winners:
+        raise HTTPException(status_code=404, detail="No se encontraron ganadores")
+    if limit:
+        winners = winners[:limit]
+    return {"count": len(winners), "winners": winners}
 
-        if not collection.find_one({"title": title, "nominee": nominee_str}):
-            collection.insert_one(document)
+@app.get("/winners/{year}")
+def get_winners_by_year(year: str):
+    data = fetch_data()
+    winners = [item for item in data if item.get("won") and item.get("year") == year]
+    if not winners:
+        raise HTTPException(status_code=404, detail=f"No se encontraron ganadores para el año {year}")
+    return {"year": year, "count": len(winners), "winners": winners}
 
-print("Datos cargados correctamente en MongoDB.")
+@app.get("/categories/{category}")
+def get_winners_by_category(category: str):
+    data = fetch_data()
+    winners = [item for item in data if item.get("won") and item.get("category").lower() == category.lower()]
+    if not winners:
+        raise HTTPException(status_code=404, detail=f"No se encontraron ganadores en la categoría '{category}'")
+    return {"category": category, "count": len(winners), "winners": winners}
+
+@app.get("/movie/{title}")
+def get_winner_by_movie(title: str):
+    data = fetch_data()
+    for item in data:
+        if item.get("won"):
+            movies = item.get("movies", [])
+            for movie in movies:
+                if movie.get("title").lower() == title.lower():
+                    return {"category": item["category"], "year": item["year"], "movie": movie, "won": item["won"]}
+    raise HTTPException(status_code=404, detail=f"No se encontró información para la película '{title}'")
