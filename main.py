@@ -1,28 +1,17 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 import requests
-import os
-import json
 
 app = FastAPI()
 
 URL = "https://raw.githubusercontent.com/delventhalz/json-nominations/main/oscar-nominations.json"
-DATA_FILE = "oscar-nominations.json"
 
 def fetch_data():
-    # Verificar si ya existe el archivo de datos
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
+    response = requests.get(URL)
+    if response.status_code == 200:
+        return response.json()
     else:
-        # Descargar los datos si no existen localmente
-        response = requests.get(URL)
-        if response.status_code == 200:
-            with open(DATA_FILE, "w") as f:
-                f.write(response.text)  # Guardar los datos en un archivo local
-            return response.json()
-        else:
-            raise HTTPException(status_code=500, detail="Error al obtener los datos de la API original")
+        raise HTTPException(status_code=500, detail="Error al obtener los datos de la API original")
 
 @app.get("/")
 def redirect_to_winners():
