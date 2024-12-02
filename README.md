@@ -48,9 +48,5 @@ Copiar código
 ngrok http 8000
 Ngrok te proporcionará un enlace público (por ejemplo: https://xxxx-xx-xx-xx.ngrok-free.app), que podrás usar para acceder a tu API desde cualquier lugar.
 
-Ejecutar el script cargarPremiosOscar.py
 Finalmente, ejecuta el archivo cargarPremiosOscar.py para cargar los datos de los premios Oscar en la base de datos.
 
-bash
-Copiar código
-python cargarPremiosOscar.py
