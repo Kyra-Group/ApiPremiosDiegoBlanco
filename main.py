@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 import requests
@@ -55,6 +56,6 @@ def get_winner_by_movie(title: str):
                     return {"category": item["category"], "year": item["year"], "movie": movie, "won": item["won"]}
     raise HTTPException(status_code=404, detail=f"No se encontró información para la película '{title}'")
 
-# Si el script se ejecuta directamente, iniciar el servidor
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=10000)
+    port = int(os.getenv("PORT", 8000))  # Usa el puerto de la variable de entorno o 8000 por defecto
+    uvicorn.run(app, host="0.0.0.0", port=port)
