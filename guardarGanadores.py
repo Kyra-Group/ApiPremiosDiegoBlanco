@@ -1,7 +1,7 @@
 import requests
 import json
 
-LOCAL_URL = "http://127.0.0.1:8000/winners/"
+LOCAL_URL = "https://nombre-de-tu-app.onrender.com/winners/"
 LOCAL_FILE_PATH = "GanadoresOscar.json"
 
 def fetch_winners_data():
