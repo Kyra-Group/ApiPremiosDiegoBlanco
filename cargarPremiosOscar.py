@@ -1,8 +1,14 @@
-import os
 import requests
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
-api_url = "http://127.0.0.1:8000/winners/"
+load_dotenv()
+
+ngrok_api_url = "http://localhost:4040/api/tunnels"
+response = requests.get(ngrok_api_url)
+tunnels_data = response.json()
+api_url = tunnels_data['tunnels'][0]['public_url'] + "/winners/"
 
 mongo_uri = os.getenv("MONGO_URI")
 
