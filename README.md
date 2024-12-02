@@ -48,5 +48,7 @@ Copiar código
 ngrok http 8000
 Ngrok te proporcionará un enlace público (por ejemplo: https://xxxx-xx-xx-xx.ngrok-free.app), que podrás usar para acceder a tu API desde cualquier lugar.
 
+No olvides añadir al archivo .env el enlace que te proporciona Mongo Atlas una vez lo hayas conectado MONGO_URI=mongodb+srv://<usuario>:<contraseña>@<cluster>.mongodb.net/?retryWrites=true&w=majority&appName=<app_name>
+
 Finalmente, ejecuta el archivo cargarPremiosOscar.py para cargar los datos de los premios Oscar en la base de datos.
 
