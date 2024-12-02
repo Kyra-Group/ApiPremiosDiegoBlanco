@@ -38,7 +38,7 @@ jobs:
       - name: Esperar a que el servidor inicie
         run: sleep 10
 
-      # Paso 6: Probar el endpoint de la API
+      # Paso 6: Probar el endpoint de FastAPI
       - name: Probar el endpoint de FastAPI
         run: |
           curl --fail http://localhost:8000/winners/ || exit 1
