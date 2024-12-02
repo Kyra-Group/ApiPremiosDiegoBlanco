@@ -3,10 +3,10 @@ name: Iniciar Servidor FastAPI
 on:
   push:
     branches:
-      - main
+      - main  # Esto indica que el flujo de trabajo se ejecutará cuando se haga push a la rama 'main'
   pull_request:
     branches:
-      - main
+      - main  # Esto ejecutará el flujo cuando se haga un pull request a la rama 'main'
 
 jobs:
   run:
