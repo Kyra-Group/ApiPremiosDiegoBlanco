@@ -29,12 +29,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Paso 4: Iniciar el servidor FastAPI
+      # Paso 4: Iniciar servidor FastAPI en segundo plano
       - name: Iniciar servidor FastAPI
         run: |
           nohup uvicorn main:app --host 0.0.0.0 --port 8000 &
         
-      # Paso 5: Esperar unos segundos para que el servidor se inicie
+      # Paso 5: Esperar a que el servidor se inicie
       - name: Esperar a que el servidor inicie
         run: sleep 10
 
