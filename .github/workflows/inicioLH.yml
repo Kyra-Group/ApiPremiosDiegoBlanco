@@ -1,0 +1,44 @@
+name: Iniciar Servidor FastAPI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Comprobar el código
+      - name: Comprobar el código
+        uses: actions/checkout@v2
+
+      # Paso 2: Configurar Python
+      - name: Configurar Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      # Paso 3: Instalar dependencias
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Paso 4: Iniciar el servidor FastAPI
+      - name: Iniciar servidor FastAPI
+        run: |
+          nohup uvicorn main:app --host 0.0.0.0 --port 8000 &
+        
+      # Paso 5: Esperar unos segundos para que el servidor se inicie
+      - name: Esperar a que el servidor inicie
+        run: sleep 10
+
+      # Paso 6: Probar el endpoint de la API
+      - name: Probar el endpoint de FastAPI
+        run: |
+          curl --fail http://localhost:8000/winners/ || exit 1
