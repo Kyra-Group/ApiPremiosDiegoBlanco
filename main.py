@@ -1,56 +1,22 @@
+from flask import Flask, jsonify
 import requests
-from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List
 
-# Crear una instancia de FastAPI
-app = FastAPI()
+app = Flask(__name__)
 
-# URL de la API original
-url = "https://raw.githubusercontent.com/delventhalz/json-nominations/main/oscar-nominations.json"
-
-# Obtener los datos de la API
-response = requests.get(url)
-data = response.json()
-
-# Definir modelos Pydantic para la validación y estructuración de datos
-class Movie(BaseModel):
-    title: str
-    tmdb_id: int
-    imdb_id: str
-
-class Nomination(BaseModel):
-    category: str
-    year: str
-    nominees: List[str]
-    title: str = None
-
-# Filtrar los datos según las condiciones solicitadas
-filtered_data = []
-
-for item in data:
-    category = item['category']
-    year = item['year']
-    nominees = item['nominees']
-    movies = item['movies']
+@app.route('/oscar-nominations', methods=['GET'])
+def get_oscar_nominations():
+    # URL del archivo JSON
+    url = 'https://raw.githubusercontent.com/delventhalz/json-nominations/main/oscar-nominations.json'
     
-    # Si nominees y title son iguales, solo se guarda nominees
-    if nominees == [movie['title'] for movie in movies]:
-        filtered_data.append({
-            'category': category,
-            'year': year,
-            'nominees': nominees
-        })
-    else:
-        for movie in movies:
-            filtered_data.append({
-                'category': category,
-                'year': year,
-                'nominees': nominees,
-                'title': movie['title']
-            })
+    # Obtener los datos del JSON
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Verifica si la solicitud fue exitosa (200 OK)
+        return jsonify(response.json())  # Retorna los datos JSON como respuesta
+    except requests.exceptions.RequestException as e:
+        # En caso de error, retorna un mensaje de error
+        return jsonify({'error': 'No se pudo obtener los datos', 'details': str(e)}), 500
 
-# Ruta para la nueva API que retorna los datos filtrados
-@app.get("/api/oscarnominations")
-def get_nominations():
-    return filtered_data
+if __name__ == '__main__':
+    # Ejecuta el servidor en el puerto 5000
+    app.run(debug=True, host='0.0.0.0', port=5000)
