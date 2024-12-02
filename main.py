@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 import requests
+from config import get_base_url  # Importa la configuración
 
 app = FastAPI()
 
-# URL de los datos originales
+# URL para los datos, usando la configuración para Render o local
 URL = "https://raw.githubusercontent.com/delventhalz/json-nominations/main/oscar-nominations.json"
 
-# Función para obtener los datos
 def fetch_data():
     response = requests.get(URL)
     if response.status_code == 200:
@@ -15,12 +15,11 @@ def fetch_data():
     else:
         raise HTTPException(status_code=500, detail="Error al obtener los datos de la API original")
 
-# Redirigir a la ruta /winners/
 @app.get("/")
 def redirect_to_winners():
-    return RedirectResponse(url="/winners/")
+    # Redirige según la configuración del entorno
+    return RedirectResponse(url=get_base_url())
 
-# Ruta para obtener todos los ganadores
 @app.get("/winners/")
 def get_all_winners(limit: int = None):
     data = fetch_data()
@@ -31,7 +30,6 @@ def get_all_winners(limit: int = None):
         winners = winners[:limit]
     return {"count": len(winners), "winners": winners}
 
-# Ruta para obtener los ganadores por año
 @app.get("/winners/{year}")
 def get_winners_by_year(year: str):
     data = fetch_data()
@@ -40,7 +38,6 @@ def get_winners_by_year(year: str):
         raise HTTPException(status_code=404, detail=f"No se encontraron ganadores para el año {year}")
     return {"year": year, "count": len(winners), "winners": winners}
 
-# Ruta para obtener los ganadores por categoría
 @app.get("/categories/{category}")
 def get_winners_by_category(category: str):
     data = fetch_data()
@@ -49,7 +46,6 @@ def get_winners_by_category(category: str):
         raise HTTPException(status_code=404, detail=f"No se encontraron ganadores en la categoría '{category}'")
     return {"category": category, "count": len(winners), "winners": winners}
 
-# Ruta para obtener información de un ganador por película
 @app.get("/movie/{title}")
 def get_winner_by_movie(title: str):
     data = fetch_data()
