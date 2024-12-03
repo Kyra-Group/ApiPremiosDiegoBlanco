@@ -1,4 +1,4 @@
-import requests
+"""import requests
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
@@ -47,4 +47,4 @@ for entry in data:
         if not collection.find_one({"title": title, "nominee": nominee_str}):
             collection.insert_one(document)
 
-print("Datos cargados correctamente en MongoDB.")
+print("Datos cargados correctamente en MongoDB.")"""
