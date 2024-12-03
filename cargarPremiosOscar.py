@@ -1,50 +1,39 @@
-"""import requests
+import requests
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-ngrok_api_url = "http://localhost:4040/api/tunnels"
-response = requests.get(ngrok_api_url)
-tunnels_data = response.json()
-api_url = tunnels_data['tunnels'][0]['public_url'] + "/winners/"
-
-mongo_uri = os.getenv("MONGO_URI")
-
+api_url = "https://apipremiosdiegoblanco.onrender.com/api/nominations"
 response = requests.get(api_url)
-data = response.json()["winners"]
+
+if response.status_code == 200:
+    data = response.json()
+    nominations = data.get("nominations", {})
+else:
+    print(f"Error al obtener datos de la API: {response.status_code}")
+    exit()
+
+mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://dblanco:XPi8dTIHmjuk9bH9@cluster0.elpgy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
 client = MongoClient(mongo_uri)
 db = client["PremiosOscar"]
-collection = db["Ganadores"]
+collection = db["Nominaciones"]
 
-for entry in data:
-    category = entry["category"]
-    year = entry["year"]
-    nominees = entry["nominees"]
-    movies = entry["movies"]
-    
-    for movie in movies:
-        title = movie["title"]
+for category_data in nominations.get("categories", []):
+    category_name = category_data.get("name")
+    year = nominations.get("year")
+    nominees = category_data.get("nominees", [])
+
+    for nominee in nominees:
+        document = {
+            "category": category_name,
+            "year": year,
+            "nominee": nominee,
+        }
         
-        if title in nominees:
-            nominee_str = title
-            document = {
-                "category": category,
-                "year": year,
-                "nominee": nominee_str,
-            }
-        else:
-            nominee_str = ", ".join(nominees)
-            document = {
-                "category": category,
-                "year": year,
-                "nominee": nominee_str,
-                "title": title,
-            }
-
-        if not collection.find_one({"title": title, "nominee": nominee_str}):
+        if not collection.find_one(document):
             collection.insert_one(document)
 
-print("Datos cargados correctamente en MongoDB.")"""
+print("Datos cargados correctamente en MongoDB.")
