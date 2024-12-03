@@ -1,4 +1,4 @@
-"""name: Run cargarPremiosOscar.py
+name: Run cargarPremiosOscar.py
 
 on:
   push:
@@ -28,5 +28,5 @@ jobs:
       run: |
         python cargarPremiosOscar.py
       env:
-        MONGO_URI: ${{ secrets.MONGO_URI }}"""
+        MONGO_URI: ${{ secrets.MONGO_URI }}
 
