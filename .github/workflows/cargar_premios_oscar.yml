@@ -1,12 +1,10 @@
-name: Cargar Premios Oscar en MongoDB
+name: Ejecutar cargarPremiosOscar
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 3 * * *" 
+  workflow_dispatch: # Permite ejecutar manualmente la acción
 
 jobs:
-  cargar-premios-oscar:
+  ejecutar-script:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +24,7 @@ jobs:
     - name: Configurar variables de entorno
       env:
         MONGO_URI: ${{ secrets.MONGO_URI }}
+      run: echo "Variable MONGO_URI configurada"
 
-    - name: Ejecutar el script para cargar datos
+    - name: Ejecutar el script
       run: python cargarPremiosOscar.py
