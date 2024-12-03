@@ -24,10 +24,12 @@ for nomination in data:
         if title in nominees:
             nominees = [title]
 
+    if len(nominees) == 1:
+        nominees = nominees[0] 
+
     document = {
         "category": category,
         "year": year,
         "nominees": nominees
     }
     collection.insert_one(document)
-
