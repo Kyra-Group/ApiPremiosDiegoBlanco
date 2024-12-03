@@ -4,6 +4,7 @@ from pymongo import MongoClient
 
 api_url = "https://apipremiosdiegoblanco.onrender.com/api/nominations"
 
+# Usamos os.getenv para obtener la variable de entorno
 mongo_uri = os.getenv("MONGO_URI")
 
 def fetch_data():
@@ -48,4 +49,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
