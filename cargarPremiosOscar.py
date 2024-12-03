@@ -4,7 +4,6 @@ from pymongo import MongoClient
 
 api_url = "https://apipremiosdiegoblanco.onrender.com/api/nominations"
 
-# Usamos os.getenv para obtener la variable de entorno
 mongo_uri = os.getenv("MONGO_URI")
 
 def fetch_data():
@@ -18,8 +17,8 @@ def fetch_data():
 
 def upload_to_mongo(data):
     client = MongoClient(mongo_uri)
-    db = client["oscar_db"]
-    collection = db["PremiosOscar"]
+    db = client["PremiosOscar"]
+    collection = db["Ganadores"]
 
     if not data or "nominations" not in data:
         print("Datos no válidos o incompletos.")
@@ -30,15 +29,17 @@ def upload_to_mongo(data):
         year = item.get("year")
         nominees = item.get("nominees", [])
         movies = item.get("movies", [])
+        won = item.get("won", False)
 
-        for nominee, movie in zip(nominees, movies):
-            title = movie.get("title")
+        if won:
+            for nominee, movie in zip(nominees, movies):
+                title = movie.get("title")
 
-            document = {"category": category, "year": year, "nominee": nominee}
-            if nominee != title:
-                document["title"] = title
+                document = {"category": category, "year": year, "nominee": nominee}
+                if nominee != title:
+                    document["title"] = title
 
-            collection.update_one({"category": category, "year": year, "nominee": nominee}, {"$set": document}, upsert=True)
+                collection.update_one({"category": category, "year": year, "nominee": nominee}, {"$set": document}, upsert=True)
 
     print("Datos cargados exitosamente a MongoDB.")
 
