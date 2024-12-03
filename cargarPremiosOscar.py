@@ -2,51 +2,37 @@ import os
 import requests
 from pymongo import MongoClient
 
+# URL de la API
 api_url = "https://apipremiosdiegoblanco.onrender.com/api/nominations"
 
 mongo_uri = os.getenv("MONGO_URI")
 
-def fetch_data():
-    try:
-        response = requests.get(api_url)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        print(f"Error al obtener datos de la API: {e}")
-        return None
+client = MongoClient(mongo_uri)
+db = client['PremiosOScar'] 
+collection = db['Ganadores']
 
-def upload_to_mongo(data):
-    client = MongoClient(mongo_uri)
-    db = client["PremiosOscar"]
-    collection = db["Ganadores"]
+response = requests.get(api_url)
+data = response.json()
+nominations_won = [
+    nomination for nomination in data["nominations"] if nomination["won"]
+]
 
-    if not data or "nominations" not in data:
-        print("Datos no válidos o incompletos.")
-        return
+for nomination in nominations_won:
+    category = nomination["category"]
+    year = nomination["year"]
+    nominees = nomination["nominees"]
+    
+    # Filtrar títulos únicos de las películas
+    movies = nomination["movies"]
+    movie_titles = {movie["title"] for movie in movies}
 
-    for item in data["nominations"]:
-        category = item.get("category")
-        year = item.get("year")
-        nominees = item.get("nominees", [])
-        movies = item.get("movies", [])
-        won = item.get("won", False)
+    document = {
+        "category": category,
+        "year": year,
+        "nominees": nominees,
+        "movies": [{"title": title} for title in movie_titles]
+    }
 
-        if won:
-            for nominee, movie in zip(nominees, movies):
-                title = movie.get("title")
+    collection.insert_one(document)
 
-                document = {"category": category, "year": year, "nominee": nominee}
-                if nominee != title:
-                    document["title"] = title
-
-                collection.update_one({"category": category, "year": year, "nominee": nominee}, {"$set": document}, upsert=True)
-
-    print("Datos cargados exitosamente a MongoDB.")
-
-def main():
-    data = fetch_data()
-    if data:
-        upload_to_mongo(data)
-
-if __name__ == "__main__":
-    main()
+print("Datos subidos exitosamente a MongoDB Atlas.")
