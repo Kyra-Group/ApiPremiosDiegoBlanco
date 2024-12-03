@@ -1,10 +1,10 @@
-name: Run cargarPremiosOscar.py
+"""name: Run cargarPremiosOscar.py
 
 on:
   push:
     branches:
-      - main  # O cualquier otra rama en la que quieras que se ejecute la acción
-  workflow_dispatch:  # Esto permite ejecutar la acción manualmente desde la interfaz de GitHub
+      - main
+  workflow_dispatch: 
 
 jobs:
   run-script:
@@ -28,5 +28,5 @@ jobs:
       run: |
         python cargarPremiosOscar.py
       env:
-        MONGO_URI: ${{ secrets.MONGO_URI }}  # Usamos el secreto de GitHub
+        MONGO_URI: ${{ secrets.MONGO_URI }}"""
 
