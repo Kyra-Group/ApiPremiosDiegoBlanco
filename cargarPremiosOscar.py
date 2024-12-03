@@ -22,7 +22,6 @@ if response.status_code == 200:
     filtered_data = []
     for nom in nominations_won:
         for movie in nom["movies"]:
-            # Si 'nominees' tiene solo un elemento, lo convertimos en un string
             nominees = nom["nominees"][0] if len(nom["nominees"]) == 1 else nom["nominees"]
             
             filtered_data.append({
