@@ -22,10 +22,13 @@ if response.status_code == 200:
     filtered_data = []
     for nom in nominations_won:
         for movie in nom["movies"]:
+            # Si 'nominees' tiene solo un elemento, lo convertimos en un string
+            nominees = nom["nominees"][0] if len(nom["nominees"]) == 1 else nom["nominees"]
+            
             filtered_data.append({
                 "category": nom["category"],
                 "year": nom["year"],
-                "nominees": nom["nominees"],
+                "nominees": nominees,
                 "title": movie["title"]
             })
 
@@ -36,4 +39,3 @@ if response.status_code == 200:
         print("No se encontraron nominaciones con 'won' = true.")
 else:
     print(f"Error al obtener los datos de la API: {response.status_code}")
-
