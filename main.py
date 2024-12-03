@@ -10,12 +10,18 @@ json_url = "https://raw.githubusercontent.com/delventhalz/json-nominations/main/
 
 # Descargar el archivo JSON
 def fetch_json():
-    response = requests.get(json_url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+    }
+    response = requests.get(json_url, headers=headers)
     response.raise_for_status()  # Verificar errores
     return response.json()
 
 # Almacenar los datos del JSON en memoria
-data = fetch_json()
+try:
+    data = fetch_json()
+except requests.HTTPError as e:
+    data = {"error": f"Failed to fetch data: {str(e)}"}
 
 # Crear un endpoint para acceder al contenido del JSON
 @app.get("/api/nominations")
